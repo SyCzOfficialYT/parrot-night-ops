@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+IFS=$'\n\t'
+command -v wofi >/dev/null 2>&1 || { echo 'Install wofi to use this menu.' >&2; exit 1; }
+mode="${1:-main}"
+case "$mode" in
+  --power)
+    choice="$(printf 'Lock screen\nLog out of Hyprland\nRestart computer\nShut down computer\nCancel\n' | wofi --dmenu --prompt 'Session / Power' --width 360 --height 300)" || exit 0
+    case "$choice" in
+      'Lock screen') command -v hyprlock >/dev/null && hyprlock || notify-send 'NIGHT OPS' 'hyprlock is not installed.' ;;
+      'Log out of Hyprland') hyprctl dispatch exit ;;
+      'Restart computer') confirm="$(printf 'Cancel\nConfirm restart\n' | wofi --dmenu --prompt 'Confirm restart')" || exit 0; [[ "$confirm" == 'Confirm restart' ]] && systemctl reboot ;;
+      'Shut down computer') confirm="$(printf 'Cancel\nConfirm shutdown\n' | wofi --dmenu --prompt 'Confirm shutdown')" || exit 0; [[ "$confirm" == 'Confirm shutdown' ]] && systemctl poweroff ;;
+    esac ;;
+  --network)
+    choice="$(printf 'Network settings\nShow IP addresses\nShow routes\nCancel\n' | wofi --dmenu --prompt 'Network')" || exit 0
+    case "$choice" in
+      'Network settings') command -v nm-connection-editor >/dev/null && nm-connection-editor || (command -v nmcli >/dev/null && kitty -e nmcli device status) ;;
+      'Show IP addresses') kitty -e sh -lc 'ip -br address; read -r -p "Press Enter to close..."' ;;
+      'Show routes') kitty -e sh -lc 'ip route; read -r -p "Press Enter to close..."' ;;
+    esac ;;
+  *)
+    choice="$(printf 'Open application launcher\nSystem HUD\nNetwork menu\nPower / session\nHyprland reload\nCancel\n' | wofi --dmenu --prompt 'PARROT // NIGHT OPS' --width 420 --height 320)" || exit 0
+    case "$choice" in
+      'Open application launcher') wofi --show drun ;;
+      'System HUD') night-ops-hud ;;
+      'Network menu') "$0" --network ;;
+      'Power / session') "$0" --power ;;
+      'Hyprland reload') hyprctl reload && notify-send 'NIGHT OPS' 'Hyprland configuration reloaded' ;;
+    esac ;;
+esac
