@@ -2,34 +2,36 @@
 
 CachyOS-first Hyprland dotfiles with an emerald Parrot-inspired security desktop aesthetic.
 
-> Starter project. This is a desktop configuration for CachyOS/Arch Linux, not Parrot OS itself. Review all scripts before running them.
+> Starter project. This configures a desktop experience on CachyOS/Arch Linux; it does not install Parrot OS itself. Review scripts before running them.
 
-## Goals
+## Current milestone
 
-- Hyprland with polished emerald borders, shadows, animation and mouse controls
-- Clickable Waybar modules and a menu launcher
-- Quickshell-based interactive Control Center (planned next milestone)
-- System HUD for CPU, memory, network and hardware overview
-- Safe user-level installation with backups and rollback
+- Hyprland emerald theme with shadows, blur, animations and mouse window controls
+- Clickable Waybar workspaces, system indicators and menu actions
+- Wofi-based session/network menu with confirmation before restart or shutdown
+- System HUD fallback using btop or a basic system report
+- User-level installer with dry-run and timestamped backups
+- Rollback for previously backed-up files
 
-## Current status
-
-The initial repository scaffold is being built. The first milestone focuses on safe configuration overlay, clickable launcher actions and rollback. A fully featured Quickshell dashboard is not yet implemented.
+**Quickshell Control Center is the next milestone and is not implemented yet.** This initial scaffold is not a complete match for the visual mockup.
 
 ## Dependencies
 
-CachyOS/Arch Linux, Hyprland, Waybar, wofi, kitty, Fish (optional), `notify-send` (optional), `btop` (optional), and `pavucontrol` (optional).
+CachyOS/Arch Linux, Hyprland, Waybar, wofi, kitty, and optionally swaync, btop, pavucontrol, pamixer, hyprlock, NetworkManager's `nmcli`/`nm-connection-editor`, and `yad`.
 
-Install packages from trusted CachyOS/Arch repositories yourself. The project installer does not run pacman or use sudo.
+Install packages yourself from trusted CachyOS/Arch repositories. The project installer never invokes pacman or sudo.
 
 ## Install
 
 ```bash
+chmod +x install.sh rollback.sh scripts/night-ops-menu scripts/system-hud
 ./install.sh --dry-run
 ./install.sh
 ```
 
-The installer backs up existing managed files under `~/.local/state/parrot-night-ops/backups/`. It does not run as root and does not overwrite files outside the listed managed targets.
+**Important:** the installer manages `~/.config/hypr/hyprland.conf` as a whole file. Back up and merge your current Hyprland configuration first if it contains custom settings. Existing target files are backed up under `~/.local/state/parrot-night-ops/backups/`.
+
+After install, verify syntax and restart/reload Hyprland only when you are ready. Some optional menu actions require the corresponding optional packages.
 
 ## Rollback
 
@@ -38,14 +40,14 @@ The installer backs up existing managed files under `~/.local/state/parrot-night
 ./rollback.sh --latest
 ```
 
-Rollback restores backed-up files. Newly created files are retained unless explicitly removed by the user, to avoid deleting unrelated content.
+Rollback restores files found in the selected backup. If a target did not exist before installation, the installer does not create a backup copy for it; remove those newly created managed files manually if you want a full uninstall. Files replaced during rollback are retained with a `.pre-rollback` suffix.
 
-## Security
+## Security principles
 
-- No root installer and no automatic package installation
+- No root installer or automatic package installation
 - No credentials, API keys, or VPN secrets in the repository
 - No automatic network scans or offensive actions
-- Power actions require a second confirmation
+- Restart/shutdown actions require a second confirmation
 
 ## License
 
