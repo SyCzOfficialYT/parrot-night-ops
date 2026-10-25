@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+IFS=$'\n\t'
+if command -v btop >/dev/null 2>&1; then exec kitty -e btop; fi
+if command -v yad >/dev/null 2>&1; then
+  yad --text-info --title='PARROT // NIGHT OPS — System HUD' --width=760 --height=620 --text="$(printf 'PARROT // NIGHT OPS — SYSTEM HUD\n\nHost: %s\nKernel: %s\nUptime: %s\n\nMEMORY\n%s\n\nFILESYSTEM\n%s\n\nNETWORK\n%s\n\nGPU\n%s' "$(hostname)" "$(uname -r)" "$(uptime -p)" "$(free -h)" "$(df -h "$HOME")" "$(ip -brief address 2>/dev/null || true)" "$(lspci 2>/dev/null | grep -Ei 'vga|3d|display' || true)")"
+else
+  kitty -e sh -lc 'printf "PARROT // NIGHT OPS — SYSTEM HUD\n\n"; hostname; uname -r; uptime -p; free -h; df -h "$HOME"; ip -brief address; read -r -p "Press Enter to close..."'
+fi
